@@ -1,0 +1,14 @@
+
+*.npy
+
+RandomForest/prediction_example.png
+
+*.joblib
+
+RandomForest/model.json
+
+*.csv
+
+RandomForest/confusion_matrix.png
+
+RandomForest/feature_importance.png

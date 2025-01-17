@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- Control Buttons at the top -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <!-- Status and Input Fields -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:id="@+id/activityStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Activity: Walking"
+                    android:textSize="14sp"/>
+
+                <!-- File name input -->
+                <EditText
+                    android:id="@+id/fileNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="File name"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="4dp"/>
+
+                <!-- Step counts in horizontal layout -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/actualStepCountInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Actual Steps"
+                        android:inputType="number"
+                        android:textSize="14sp"/>
+
+                    <EditText
+                        android:id="@+id/stepCountInput"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Estimated Steps"
+                        android:inputType="number"
+                        android:textSize="14sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Button Grid -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3"
+                android:rowCount="2"
+                android:alignmentMode="alignMargins"
+                android:useDefaultMargins="true">
+
+                <Button
+                    android:id="@+id/modeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="MODE"
+                    android:textSize="10sp"
+                    android:layout_columnWeight="1"/>
+
+                <Button
+                    android:id="@+id/startButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="START"
+                    android:textSize="10sp"
+                    android:layout_columnWeight="1"/>
+
+                <Button
+                    android:id="@+id/stopButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="STOP"
+                    android:textSize="10sp"
+                    android:layout_columnWeight="1"/>
+
+                <Button
+                    android:id="@+id/resetButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="RESET"
+                    android:textSize="10sp"
+                    android:layout_columnWeight="1"/>
+
+                <Button
+                    android:id="@+id/saveButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="SAVE"
+                    android:textSize="10sp"
+                    android:layout_columnWeight="1"/>
+
+                <Button
+                    android:id="@+id/loadCsvButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="LOAD"
+                    android:textSize="10sp"
+                    android:layout_columnWeight="1"/>
+
+            </GridLayout>
+
+        </LinearLayout>
+
+        <!-- Bluetooth Fragment below buttons -->
+        <FrameLayout
+            android:id="@+id/fragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
