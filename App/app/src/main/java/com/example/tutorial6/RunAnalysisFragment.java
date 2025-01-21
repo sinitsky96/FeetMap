@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -27,6 +28,9 @@ import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -76,18 +80,74 @@ public class RunAnalysisFragment extends Fragment {
         return view;
     }
 
-    private void setupCharts() {
-        // Setup IMU chart
-        imuChart.getDescription().setEnabled(false);
-        imuChart.setTouchEnabled(true);
-        imuChart.setDragEnabled(true);
-        imuChart.setScaleEnabled(true);
+//    private void setupCharts() {
+//        // Setup IMU chart
+//        imuChart.getDescription().setEnabled(false);
+//        imuChart.setTouchEnabled(true);
+//        imuChart.setDragEnabled(true);
+//        imuChart.setScaleEnabled(true);
+//
+//        // Setup FSR chart
+//        fsrChart.getDescription().setEnabled(false);
+//        fsrChart.setTouchEnabled(true);
+//        fsrChart.setDragEnabled(true);
+//        fsrChart.setScaleEnabled(true);
+//    }
 
-        // Setup FSR chart
-        fsrChart.getDescription().setEnabled(false);
-        fsrChart.setTouchEnabled(true);
-        fsrChart.setDragEnabled(true);
-        fsrChart.setScaleEnabled(true);
+    private void setupCharts() {
+        // Common settings for both charts
+        for (LineChart chart : new LineChart[]{imuChart, fsrChart}) {
+            chart.getDescription().setEnabled(false);
+            chart.setTouchEnabled(true);
+            chart.setDragEnabled(true);
+            chart.setScaleEnabled(true);
+
+            // Set consistent paddings
+            chart.setViewPortOffsets(60f, 20f, 30f, 50f);
+
+            // Enable synchronized scrolling between charts
+            chart.setOnChartGestureListener(new OnChartGestureListener() {
+                @Override
+                public void onChartGestureStart(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {}
+
+                @Override
+                public void onChartGestureEnd(MotionEvent me, ChartTouchListener.ChartGesture lastPerformedGesture) {}
+
+                @Override
+                public void onChartLongPressed(MotionEvent me) {}
+
+                @Override
+                public void onChartDoubleTapped(MotionEvent me) {}
+
+                @Override
+                public void onChartSingleTapped(MotionEvent me) {}
+
+                @Override
+                public void onChartFling(MotionEvent me1, MotionEvent me2, float velocityX, float velocityY) {}
+
+                @Override
+                public void onChartScale(MotionEvent me, float scaleX, float scaleY) {
+                    syncCharts(chart);
+                }
+
+                @Override
+                public void onChartTranslate(MotionEvent me, float dX, float dY) {
+                    syncCharts(chart);
+                }
+            });
+        }
+    }
+
+    private void syncCharts(LineChart sourceChart) {
+        LineChart targetChart = (sourceChart == imuChart) ? fsrChart : imuChart;
+
+        // Sync the visible range
+        targetChart.setVisibleXRangeMaximum(sourceChart.getVisibleXRange());
+        targetChart.setVisibleXRangeMinimum(sourceChart.getVisibleXRange());
+        targetChart.moveViewToX(sourceChart.getLowestVisibleX());
+
+        // Force refresh
+        targetChart.invalidate();
     }
 
     // In RunAnalysisFragment
@@ -275,15 +335,14 @@ public class RunAnalysisFragment extends Fragment {
                 createDataSet(entriesFsr2, "Mid", Color.GREEN),
                 createDataSet(entriesFsr3, "Toe", Color.BLUE)
         );
-
-        imuChart.setVisibleXRangeMinimum(5f);  // Show at least 5 seconds
-        imuChart.setVisibleXRangeMaximum(30f); // Show at most 30 seconds
-        fsrChart.setVisibleXRangeMinimum(5f);
-        fsrChart.setVisibleXRangeMaximum(30f);
-
-
         fsrChart.setData(fsrData);
         fsrChart.invalidate();
+
+
+//        imuChart.setVisibleXRangeMinimum(5f);  // Show at least 5 seconds
+        imuChart.setVisibleXRangeMaximum(20f); // Show at most 30 seconds
+//        fsrChart.setVisibleXRangeMinimum(5f);
+        fsrChart.setVisibleXRangeMaximum(20f);
     }
 
     private void updateChartsPosition(long timestamp) {
