@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btnReturn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Return" />
+
+        <!-- Foot pressure visualization -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp">
+
+            <ImageView
+                android:id="@+id/footOutline"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/pic" />
+
+            <com.example.tutorial6.FootHeatmapView
+                android:id="@+id/heatmapView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <!-- IMU Graph -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/imuChart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp" />
+
+        <!-- FSR Values -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Heel:"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/fsrValue1"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Mid:"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/fsrValue2"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Toe:"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/fsrValue3"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnStartTracking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Start Tracking" />
+
+    </LinearLayout>
+</ScrollView>

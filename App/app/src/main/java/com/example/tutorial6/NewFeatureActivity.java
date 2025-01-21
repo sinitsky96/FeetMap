@@ -40,7 +40,7 @@ public class NewFeatureActivity extends AppCompatActivity implements FragmentMan
     }
 
     public void onDeviceSelected(String deviceAddress) {
-        FSRFragment fragment = FSRFragment.newInstance(deviceAddress);
+        ChooseFragment fragment = ChooseFragment.newInstance(deviceAddress);
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.fragment_container, fragment, "fsr")
             .addToBackStack(null)
