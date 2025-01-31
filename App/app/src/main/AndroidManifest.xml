@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.tutorial6">
+    package="com.example.feetmap">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -10,14 +10,14 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 
     <application
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/logo"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         
-        <activity android:name=".StartActivity"
+        <activity android:name="com.example.feetmap.StartActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,17 +25,17 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".NewFeatureActivity" />
+        <activity android:name="com.example.feetmap.NewFeatureActivity" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.feetmap.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
-        <activity android:name=".LoadCSV" />
+        <activity android:name="com.example.feetmap.LoadCSV" />
 
-        <service android:name=".SerialService" />
+        <service android:name="com.example.feetmap.SerialService" />
     </application>
 
 </manifest>

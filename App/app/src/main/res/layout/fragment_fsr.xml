@@ -54,7 +54,7 @@
         </LinearLayout>
 
         <!-- Single FSR Circle View -->
-        <com.example.tutorial6.FSRCircleView
+        <com.example.feetmap.FSRCircleView
             android:id="@+id/fsrCircleView"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -97,4 +97,4 @@
         </LinearLayout>
     </LinearLayout>
 
-</RelativeLayout> 
+</RelativeLayout>
