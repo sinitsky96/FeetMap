@@ -12,3 +12,11 @@ RandomForest/model.json
 RandomForest/confusion_matrix.png
 
 RandomForest/feature_importance.png
+
+*.zip
+
+*.png
+
+RandomForest/__pycache__/
+
+RandomForest/window_animation.gif
