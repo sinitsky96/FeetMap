@@ -6,14 +6,39 @@
     android:padding="16dp"
     android:background="#000000">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center">
 
+        <TextView
+            android:id="@+id/tvScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score: "
+            android:textColor="@android:color/white"
+            android:textSize="18sp"/>
+
+        <ImageButton
+            android:id="@+id/btnInfo"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_dialog_info"
+            android:tint="@android:color/white"
+            android:contentDescription="Information"/>
+    </LinearLayout>
 
     <TextView
-        android:id="@+id/tvScore"
+        android:id="@+id/tvTimelineTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Timeline of High Heel Pressure"
         android:layout_gravity="center"
+        android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold" />
 

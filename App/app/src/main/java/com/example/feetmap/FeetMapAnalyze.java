@@ -10,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.appcompat.app.AlertDialog;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -42,6 +44,8 @@ public class FeetMapAnalyze extends Fragment {
     private HeatmapView heatmapView;
     private TextView tvScore;
     private Button btnFurther;
+    private ImageButton btnInfo;
+    private TextView tvScoreComment;
 
     // Data
     private List<RunningDataPoint> runData = new ArrayList<>();
@@ -84,9 +88,12 @@ public class FeetMapAnalyze extends Fragment {
         heatmapView = view.findViewById(R.id.heatmapView);
         heatmapView.setFootImage(R.mipmap.footpic);
         tvScore     = view.findViewById(R.id.tvScore);
+        tvScoreComment = view.findViewById(R.id.tvScoreComment);
         btnFurther  = view.findViewById(R.id.btnFurther);
+        btnInfo     = view.findViewById(R.id.btnInfo);
 
         btnFurther.setOnClickListener(v -> navigateToRunAnalysis());
+        btnInfo.setOnClickListener(v -> showScoreInfoDialog());
 
         // If we do not have an empty csvUriString, try loading data
         if (!TextUtils.isEmpty(csvUriString)) {
@@ -163,7 +170,7 @@ public class FeetMapAnalyze extends Fragment {
 
             // Update UI
             tvScore.setText(String.format("Score: %.1f", (averageBalanceScore * 100f)));
-            // multiply by 100 if you want 0..100 range
+            tvScoreComment.setText(getScoreComment(averageBalanceScore * 100f));
 
             // Pass percentages to heatmap
             heatmapView.updateValues(fsrPercentages);
@@ -208,6 +215,29 @@ public class FeetMapAnalyze extends Fragment {
         if (rawScore < 0) rawScore = 0;
         if (rawScore > 1) rawScore = 1;
         return rawScore;
+    }
+
+    private void showScoreInfoDialog() {
+        new AlertDialog.Builder(requireContext())
+            .setTitle("Score Information")
+            .setMessage("The score represents how much out of a 100 the quality of the run is. Higher is better")
+            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+            .create()
+            .show();
+    }
+
+    private String getScoreComment(float score) {
+        if (score >= 95) {
+            return "Effortless, do you even have heels?";
+        } else if (score >= 80) {
+            return "Quality run, good job!";
+        } else if (score >= 70) {
+            return "Could be better, take your heel off the gas :)";
+        } else if (score >= 55) {
+            return "Pass and forget? More like broken spine and dreams! Don't run with your heels!";
+        } else {
+            return "Are you even trying? Don't run with your heel!";
+        }
     }
 }
 

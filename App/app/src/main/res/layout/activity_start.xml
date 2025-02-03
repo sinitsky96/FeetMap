@@ -17,6 +17,6 @@
         android:id="@+id/btnNewFeature"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="New Feature"/>
+        android:text="Feet Map" />
 
 </LinearLayout> 

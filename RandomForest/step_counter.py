@@ -34,6 +34,7 @@ import os
 from glob import glob
 import scipy.signal
 import optuna
+import matplotlib.pyplot as plt
 
 def calculate_acceleration_rms(acc_x, acc_y, acc_z):
     """
@@ -311,6 +312,112 @@ def process_file(file_path, analyze_func=analyze_movement):
         print(f"Error processing {file_path}: {str(e)}")
         return None
 
+def visualize_best_trial(file_path, best_params, sampling_rate=33):
+    """
+    Visualize the step detection results for the best trial.
+    
+    Args:
+        file_path (str): Path to the CSV file to visualize
+        best_params (dict): Best parameters from optimization
+        sampling_rate (int): Data sampling rate in Hz
+    """
+    try:
+        # Read the first few lines to determine the format
+        with open(file_path, 'r') as f:
+            header_lines = [next(f) for _ in range(10)]
+        
+        # Find the header row by looking for "Time" or column names
+        start_row = None
+        header_row = None
+        for i, line in enumerate(header_lines):
+            if ('Time' in line or 'ACC X' in line or 'ACC Y' in line or 'ACC Z' in line or 
+                'AccX' in line or 'AccY' in line or 'AccZ' in line):
+                start_row = i
+                header_row = i
+                break
+        
+        if start_row is None:
+            print(f"Could not find header row in {file_path}")
+            return None
+
+        # Read the CSV with the correct header row
+        try:
+            df = pd.read_csv(file_path, skiprows=header_row)
+        except Exception as e:
+            print(f"Could not read CSV format in {file_path}: {str(e)}")
+            return None
+
+        # Clean up column names by stripping whitespace and quotes
+        df.columns = [col.strip().strip('"').strip() for col in df.columns]
+
+        # Check if we have the required columns
+        required_cols = ['ACC X', 'ACC Y', 'ACC Z']
+        if not all(col in df.columns for col in required_cols):
+            # Try alternative column names
+            alt_cols = ['AccX', 'AccY', 'AccZ']
+            if all(col in df.columns for col in alt_cols):
+                df = df.rename(columns={'AccX': 'ACC X', 'AccY': 'ACC Y', 'AccZ': 'ACC Z'})
+            else:
+                print(f"Missing required acceleration columns in {file_path}")
+                print(f"Available columns: {list(df.columns)}")
+                return None
+
+        # Process with best parameters
+        acc_x = df['ACC X'].values
+        acc_y = df['ACC Y'].values
+        acc_z = df['ACC Z'].values
+        
+        acc_rms = calculate_acceleration_rms(acc_x, acc_y, acc_z)
+        
+        # Apply bandpass filter with best parameters
+        nyquist = 0.5 * sampling_rate
+        normal_cutoff_low = best_params['cutoff_low'] / nyquist
+        normal_cutoff_high = best_params['cutoff_high'] / nyquist
+        b, a = scipy.signal.butter(2, [normal_cutoff_low, normal_cutoff_high], btype='band')
+        filtered_rms = scipy.signal.filtfilt(b, a, acc_rms)
+        
+        # Normalize
+        filtered_rms = (filtered_rms - np.mean(filtered_rms)) / np.std(filtered_rms)
+        
+        # Find peaks with best parameters
+        std_dev = np.std(filtered_rms)
+        mean_val = np.mean(filtered_rms)
+        threshold = mean_val + best_params['threshold_multiplier'] * std_dev
+        min_step_samples = int(best_params['min_step_distance'] * sampling_rate)
+        peaks, _ = scipy.signal.find_peaks(
+            filtered_rms,
+            height=threshold,
+            distance=min_step_samples,
+            prominence=best_params['prominence']
+        )
+        
+        # Create visualization
+        plt.figure(figsize=(15, 6))
+        
+        # Plot raw RMS
+        plt.subplot(2, 1, 1)
+        plt.plot(acc_rms, label='Raw RMS', alpha=0.5)
+        plt.title('Raw RMS Acceleration')
+        plt.xlabel('Samples')
+        plt.ylabel('Acceleration (m/s²)')
+        plt.legend()
+        
+        # Plot filtered signal with peaks
+        plt.subplot(2, 1, 2)
+        plt.plot(filtered_rms, label='Filtered Signal')
+        plt.plot(peaks, filtered_rms[peaks], "x", label='Detected Steps')
+        plt.axhline(threshold, color='r', linestyle='--', label='Threshold')
+        plt.title(f'Filtered Signal with Detected Steps (Total: {len(peaks)})')
+        plt.xlabel('Samples')
+        plt.ylabel('Normalized Acceleration')
+        plt.legend()
+        
+        plt.tight_layout()
+        plt.show()
+        
+    except Exception as e:
+        print(f"Error in visualization: {str(e)}")
+
 def main():
     """
     Main execution function for step counting evaluation.
@@ -353,6 +460,10 @@ def main():
         print(f"Mean absolute error: {results_df['absolute_error'].mean():.2f} steps")
         print(f"Mean relative error: {results_df['relative_error'].mean() * 100:.2f}%")
         print(f"Root mean squared error: {np.sqrt((results_df['error']**2).mean()):.2f} steps")
+        
+        # Visualize best trial
+        if TEST_FILES:
+            visualize_best_trial(TEST_FILES[1], best_params)
     else:
         print("No files were processed successfully")
 

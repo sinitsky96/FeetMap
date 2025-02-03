@@ -1,17 +1,21 @@
 package com.example.feetmap;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 
@@ -35,6 +39,7 @@ public class RunAnalysisFragment extends Fragment {
     private LineChart imuChart;
     private LineChart fsrChart;
     private TextView tvScore;
+    private ImageButton btnInfo;
 
     private List<RunningDataPoint> runData = new ArrayList<>();
 
@@ -68,6 +73,14 @@ public class RunAnalysisFragment extends Fragment {
         imuChart = view.findViewById(R.id.imuAnalysisChart);
         fsrChart = view.findViewById(R.id.fsrAnalysisChart);
         tvScore = view.findViewById(R.id.tvScore);
+        btnInfo = view.findViewById(R.id.btnInfo);
+
+        // Add logging for button finding
+        if (btnInfo == null) {
+            Log.e("RunAnalysisFragment", "btnInfo not found in layout");
+        } else {
+            Log.d("RunAnalysisFragment", "btnInfo found in layout");
+        }
 
         if (getArguments() != null) {
             String csvUriString = getArguments().getString(ARG_CSV_URI);
@@ -78,17 +91,29 @@ public class RunAnalysisFragment extends Fragment {
 
         setupCharts();
         setupTimelineView();
+
+        // Setup info button click listener
+        btnInfo.setOnClickListener(v -> showScoreInfoDialog());
+
         return view;
     }
 
     private void setupCharts() {
         // Common settings for both charts
         for (LineChart chart : new LineChart[]{imuChart, fsrChart}) {
-            chart.getDescription().setEnabled(false);
+            chart.getDescription().setEnabled(true);
             chart.setTouchEnabled(true);
             chart.setDragEnabled(true);
             chart.setScaleEnabled(true);
-            chart.setViewPortOffsets(60f, 20f, 30f, 50f);
+            chart.setViewPortOffsets(60f, 50f, 30f, 50f);
+
+            // Wait for layout to complete before positioning description
+            chart.post(() -> {
+                float centerX = chart.getWidth() / 2f;
+                chart.getDescription().setPosition(centerX, 35f);
+                chart.getDescription().setTextAlign(Paint.Align.CENTER);
+                chart.invalidate();
+            });
 
             chart.setOnChartGestureListener(new OnChartGestureListener() {
                 @Override
@@ -144,9 +169,9 @@ public class RunAnalysisFragment extends Fragment {
             // Skip header
             reader.readLine();
 
-            double heelScore = 0;
-            double midScore = 0;
-            double toeScore = 0;
+            float heelSum = 0f;
+            float midSum = 0f;
+            float toeSum = 0f;
 
             String line;
             while ((line = reader.readLine()) != null) {
@@ -166,23 +191,34 @@ public class RunAnalysisFragment extends Fragment {
                 runData.add(point);
 
                 // Accumulate sensor scores
-                heelScore += point.fsr1;
-                midScore += point.fsr2;
-                toeScore += point.fsr3;
+                heelSum += point.fsr1;
+                midSum += point.fsr2;
+                toeSum += point.fsr3;
             }
             reader.close();
 
-            // Calculate final score (0-100)
-            double totalPressure = heelScore + midScore + toeScore;
-            double balanceScore = 100 * (1
-                    - Math.abs(heelScore / totalPressure - 0.33)
-                    - Math.abs(midScore / totalPressure - 0.33)
-                    - Math.abs(toeScore / totalPressure - 0.33));
+            // Calculate score using the same formula as FeetMapAnalyze
+            float totalSum = heelSum + midSum + toeSum;
+            if (totalSum > 0) {
+                float st = toeSum / totalSum;
+                float sm = midSum / totalSum;
+                float sh = heelSum / totalSum;
 
-            // Update UI
+                // Use same weights as FeetMapAnalyze
+                float W_T = 1.0f;    // Toe weight
+                float W_M = 0.5f;    // Midfoot weight
+                float W_H = 1.2f;    // Heel weight
+
+                float numerator = (W_T * st) + (W_M * sm) - (W_H * sh) + W_H;
+                float denominator = W_T + W_H;
+                float score = (numerator / denominator) * 100f;  // Convert to 0-100 scale
+
+                // Update UI
+                tvScore.setText(String.format("Score: %.1f", score));
+            }
+
             timelineView.setData(runData);
             updateCharts();
-
 
         } catch (Exception e) {
             Toast.makeText(requireContext(),
@@ -237,10 +273,18 @@ public class RunAnalysisFragment extends Fragment {
         imuChart.getLegend().setTextColor(Color.WHITE);
         imuChart.getLegend().setTextSize(12f);
 
+        // IMU chart description
         imuChart.getDescription().setEnabled(true);
         imuChart.getDescription().setText("IMU Data Analysis");
-        imuChart.getDescription().setTextSize(12f);
-        imuChart.getDescription().setTextColor(Color.WHITE); // Or any color you prefer
+        imuChart.getDescription().setTextSize(14f);
+        imuChart.getDescription().setTextColor(Color.WHITE);
+        imuChart.post(() -> {
+            float centerX = imuChart.getWidth() / 2f;
+            imuChart.getDescription().setPosition(centerX, 35f);
+            
+            imuChart.getDescription().setTextAlign(Paint.Align.CENTER);
+            imuChart.invalidate();
+        });
 
         imuChart.invalidate();
 
@@ -265,10 +309,17 @@ public class RunAnalysisFragment extends Fragment {
         fsrChart.getLegend().setTextColor(Color.WHITE);
         fsrChart.getLegend().setTextSize(12f);
 
+        // FSR chart description
         fsrChart.getDescription().setEnabled(true);
         fsrChart.getDescription().setText("FSR Sensor Data");
-        fsrChart.getDescription().setTextSize(12f);
+        fsrChart.getDescription().setTextSize(14f);
         fsrChart.getDescription().setTextColor(Color.WHITE);
+        fsrChart.post(() -> {
+            float centerX = fsrChart.getWidth() / 2f;
+            fsrChart.getDescription().setPosition(centerX, 35f);
+            fsrChart.getDescription().setTextAlign(Paint.Align.CENTER);
+            fsrChart.invalidate();
+        });
 
         fsrChart.invalidate();
 
@@ -290,5 +341,14 @@ public class RunAnalysisFragment extends Fragment {
         set.setDrawValues(false);
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         return set;
+    }
+
+    private void showScoreInfoDialog() {
+        new AlertDialog.Builder(requireContext())
+            .setTitle("Score Information")
+            .setMessage("The score represents how much out of a 100 the quality of the run is. Higher is better")
+            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+            .create()
+            .show();
     }
 }

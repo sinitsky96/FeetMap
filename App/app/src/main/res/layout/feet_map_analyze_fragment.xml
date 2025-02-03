@@ -4,30 +4,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tvScore"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Score: "
-        android:textSize="18sp"
+        android:orientation="horizontal"
         android:layout_gravity="center_horizontal"
-        android:padding="16dp"/>
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tvScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score: "
+            android:textSize="18sp"/>
+
+        <ImageButton
+            android:id="@+id/btnInfo"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_dialog_info"
+            android:tint="@android:color/white"
+            android:contentDescription="Information"/>
+    </LinearLayout>
 
     <com.example.feetmap.HeatmapView
         android:id="@+id/heatmapView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        />
+        android:layout_weight="1"/>
+
     <TextView
-        android:id="@+id/someText"
+        android:id="@+id/tvScoreComment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="The score represents how much out of a 100 the quality of the run is. Higher is better"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
         android:textAlignment="center"
         android:textSize="18sp"
-        android:layout_gravity="center_horizontal"
-        android:padding="16dp"/>
+        android:padding="16dp"
+        android:textColor="@android:color/white"/>
 
     <Button
         android:id="@+id/btnFurther"
