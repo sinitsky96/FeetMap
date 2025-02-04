@@ -33,9 +33,9 @@ import java.util.List;
  */
 public class FeetMapAnalyze extends Fragment {
     // Weights for toe, mid, heel
-    private static final float W_T = 1.0f;    // Toe weight
+    private static final float W_T = 1.5f;    // Toe weight
     private static final float W_M = 0.5f;    // Midfoot weight
-    private static final float W_H = 1.2f;    // Heel weight
+    private static final float W_H = 0.5f;    // Heel weight
 
     private SharedViewModel sharedViewModel;
     private String csvUriString;
@@ -153,7 +153,7 @@ public class FeetMapAnalyze extends Fragment {
             reader.close();
 
             // Compute average balance score from all data points
-            averageBalanceScore = computeAverageBalanceScore(runData);
+//            averageBalanceScore = computeAverageBalanceScore(runData);
 
             // Compute relative percentages (heel, mid, toe)
             float totalSum = heelSum + midSum + toeSum;
@@ -167,10 +167,11 @@ public class FeetMapAnalyze extends Fragment {
                 fsrPercentages[1] = 0.0f;
                 fsrPercentages[2] = 0.0f;
             }
+            float score =(toeSum+midSum)/totalSum * 100f;
 
             // Update UI
-            tvScore.setText(String.format("Score: %.1f", (averageBalanceScore * 100f)));
-            tvScoreComment.setText(getScoreComment(averageBalanceScore * 100f));
+            tvScore.setText(String.format("Score: %.1f", (score)));
+            tvScoreComment.setText(getScoreComment(score));
 
             // Pass percentages to heatmap
             heatmapView.updateValues(fsrPercentages);
@@ -180,42 +181,6 @@ public class FeetMapAnalyze extends Fragment {
         }
     }
 
-    /**
-     * Computes the average of the normalized balance scores
-     * across all data points.
-     */
-    private float computeAverageBalanceScore(List<RunningDataPoint> data) {
-        if (data.isEmpty()) return 0f;
-        float sum = 0;
-        for (RunningDataPoint point : data) {
-            // point.fsr1 = heel, fsr2 = mid, fsr3 = toe
-            sum += computeNormalizedScore(point.fsr3, point.fsr2, point.fsr1);
-        }
-        return sum / data.size();
-    }
-
-    /**
-     * Implements the normalized formula:
-     *  BalanceScore = [ wT*(St/S) + wM*(Sm/S) - wH*(Sh/S) + wH ] / (wT + wH)
-     */
-    private float computeNormalizedScore(float fsrToe, float fsrMid, float fsrHeel) {
-        float sTotal = fsrToe + fsrMid + fsrHeel;
-        if (sTotal <= 0) return 0.5f; // if no pressure, consider "neutral"
-
-        float st = fsrToe / sTotal;
-        float sm = fsrMid / sTotal;
-        float sh = fsrHeel / sTotal;
-
-        // Weighted formula
-        float numerator = (W_T * st) + (W_M * sm) - (W_H * sh) + W_H;
-        float denominator = W_T + W_H;
-        float rawScore = numerator / denominator;
-
-        // Clip to [0, 1] if you want
-        if (rawScore < 0) rawScore = 0;
-        if (rawScore > 1) rawScore = 1;
-        return rawScore;
-    }
 
     private void showScoreInfoDialog() {
         new AlertDialog.Builder(requireContext())
